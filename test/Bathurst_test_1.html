@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <link rel="stylesheet" href="css/tei.css">
-  <script src="../js/CETEI.js"></script>
+  <link rel="stylesheet" href="CETEIcean.css">
+  <script src="../src/CETEI.js"></script>
   <script>
     let c = new CETEI();
     let behaviors = {
@@ -17,20 +17,16 @@
             result.appendChild(n.cloneNode());
           }
           return result;
-        },
-        "lb": ["<br>"],
-        /* Insert a <p> with the content of the <pb>'s @n attribute inside it
-           Add a line above with CSS */
-        "pb": ["<p class=\"break\">$@n</p>"],
+        }
       }
     };
     c.addBehaviors(behaviors);
-    c.getHTML5('../fpn-washington.xml', function(data){
+    c.getHTML5('TEI_MSS_Rawl_D_1262.xml', function(data){
       document.getElementsByTagName('body')[0].appendChild(data);
     });
   </script>
 </head>
 <body>
-
+  
 </body>
 </html>

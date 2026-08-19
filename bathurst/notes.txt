@@ -1,0 +1,91 @@
+
+Approach 2: CSS Grid + JavaScript Extraction (Recommended)
+
+This gives you the cleanest result — a dedicated margin column with notes pinned to their correct vertical position.
+Step 1: Set up a grid layout
+.tei-body {
+  display: grid;
+  grid-template-columns: 1fr 200px;
+  column-gap: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.tei-body > .margin-notes {
+  grid-column: 2;
+}
+
+@media (max-width: 768px) {
+  .tei-body {
+    grid-template-columns: 1fr;
+  }
+  .margin-notes {
+    display: none; /* or reflow inline */
+  }
+}
+Step 2: Extract margin notes with JavaScript
+
+After CETEIcean finishes processing, run this to pull each <label place="margin"> out of the text flow and position it in the margin column at the correct vertical offset:
+document.addEventListener('ceteicean-loaded', function() {
+  const body = document.querySelector('tei-body, .tei-body');
+  if (!body) return;
+
+  // Create the margin column
+  const marginCol = document.createElement('div');
+  marginCol.className = 'margin-notes';
+  marginCol.style.position = 'relative';
+  body.appendChild(marginCol);
+
+  // Find all margin labels
+  const marginLabels = body.querySelectorAll('label[place="margin"], tei-label[place="margin"]');
+
+  marginLabels.forEach(function(label, index) {
+    // Record the vertical position of the label in the text
+    const rect = label.getBoundingClientRect();
+    const bodyRect = body.getBoundingClientRect();
+    const topOffset = rect.top - bodyRect.top + body.scrollTop;
+
+    // Insert a placeholder span where the label was
+    const marker = document.createElement('span');
+    marker.className = 'margin-marker';
+    marker.textContent = '[' + (index + 1) + ']';
+    marker.style.fontSize = '0.75em';
+    marker.style.verticalAlign = 'super';
+    label.parentNode.insertBefore(marker, label);
+
+    // Move the label into the margin column
+    label.style.position = 'absolute';
+    label.style.top = topOffset + 'px';
+    label.style.width = '200px';
+    label.style.fontSize = '0.85em';
+    label.style.color = '#555';
+    marginCol.appendChild(label);
+  });
+});
+
+    Note: The event name depends on your CETEIcean setup. If you're not sure which event fires, you can also call this code at the end of your CETEIcean.makeHTML() callback or after new CETEI().getHTML5() resolves.
+
+Step 3: Handle re-layout on scroll/resize
+
+Since absolute positioning is relative to the container, you'll want to recalculate on resize:
+let repositionTimer;
+window.addEventListener('resize', function() {
+  clearTimeout(repositionTimer);
+  repositionTimer = setTimeout(repositionMargins, 150);
+});
+
+function repositionMargins() {
+  // Re-run the positioning logic: for each margin note,
+  // find its corresponding marker span and recalculate top offset
+  document.querySelectorAll('.margin-marker').forEach(function(marker) {
+    const rect = marker.getBoundingClientRect();
+    const body = document.querySelector('tei-body, .tei-body');
+    const bodyRect = body.getBoundingClientRect();
+    const topOffset = rect.top - bodyRect.top + body.scrollTop;
+    const label = document.querySelector(
+      '.margin-notes > :nth-child(' + 
+      (Array.from(document.querySelectorAll('.margin-marker')).indexOf(marker) + 1) + ')'
+    );
+    if (label) label.style.top = topOffset + 'px';
+  });
+}
