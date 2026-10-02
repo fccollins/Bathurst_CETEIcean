@@ -1,3 +1,30 @@
+/* layout - grid with three columns */
+.tei-container {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 3fr minmax(0, 1fr);
+  gap: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+    
+/* general formating for each column */
+.margin-left {
+  grid-column: 1;
+  text-align: right;
+  padding-right: 1rem;
+}
+    
+.main-text {
+  grid-column: 2;
+}
+    
+.margin-right {
+  grid-column: 3;
+  text-align: left;
+  padding-left: 1rem;
+}
+    
 p.break {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 80%;
@@ -85,8 +112,6 @@ tei-p {
   margin-left: 8.5em;
   margin-right: 8.5em;
   text-align: justify;
-}
-tei-tei {
   font-family: Georgia, 'Times New Roman', Times, serif;
 }
 tei-text {
@@ -110,17 +135,28 @@ tei-head {
   margin-right: 8.5em;
   font-size: larger;
 }
-tei-head>
 
 /* overrides other color when Bathurst's hand is doing the additions */
-tei-add[hand='#AB'], tei-metamark[hand='#AB']{
+tei-add[hand="#AB"] {
   color: blueviolet !important;
   background-color: lavenderblush;
 }
-tei-del[hand='#AB'][rend=strikethrough]{
+tei-metamark[hand="#AB"] {
   color: blueviolet !important;
   background-color: lavenderblush;
-  text-decoration:line-through;
+}
+tei-del[hand="#AB"][rend=strikethrough]{
+  color: blueviolet !important;
+  background-color: lavenderblush;
+  text-decoration: line-through;
+}
+*[hand='#AB'] {
+  color: blueviolet !important;
+  background-color: lavenderblush !important;
+}
+*[hand='#pencil'] {
+  color: green !important;
+  background-color: honeydew !important;
 }
 
 /*deletions render as strikethrough*/
@@ -151,71 +187,76 @@ tei-add[place=below] {
   vertical-align: sub;
   font-size: smaller;
 }
-tei-add[place=margin] {
-  /*position: sticky;*/
-  top: 1rem;
-  float: right;
-  width: 180px;
-  margin-right: -200px;
-  font-size: 0.85em;
-} 
 tei-add[place=left] {
   top: 1rem;
   float: left;
-  width: 180px;
-  margin-left: -200px;
-  font-size: 0.85em;
+  width: 240px;
+  margin-left: -260px;
+  font-size: 0.9em;
 }
 tei-add[place=right] {
   top: 1rem;
   float: right;
-  width: 180px;
-  margin-right: -200px;
-  font-size: 0.85em;
+  width: 240px;
+  margin-right: -260px;
+  font-size: 0.9em;
 }
 
-/* marginal references */
-tei-add[place=right][type=reference] {
+/* resets spacing for inline elements, so there aren't paragraph breaks in odd places */
+.tei-add.inline, .tei-del.inline, .tei-metamark.inline {
+  display: inline !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: inherit !important;
+  vertical-align: baseline !important;
+  border: none !important;
+}
+    
+/* displays above and below "inline," that is, without a paragraph break. the super/subscript is handled elsewhere */
+.tei-add.above, .tei-metamark.above, .tei-add.below, .tei-metamark.below {
+  display: inline;
+}
+    
+/* positions marginal annotations in grid i.e. avoiding overlap */
+.tei-add.margin-left, .tei-metamark.margin-left, .tei-add.margin-right, .tei-metamark.margin-right {
+  margin: 0.5em 0;
+  padding: 0;
+  position: static !important;
+}
+
+.tei-add.margin-left, .tei-add.margin-right {
+  font-size: 0.9em;
+}
+.tei-metamark.margin-left, .tei-metamark.margin-right {
+  font-size: 1.1em;
+  background-color: rgba(255, 248, 220, .3);
+}
+
+/* marginal glosses, regardless of hand */
+*[type='label'] {
+  outline: 1px dashed grey;
+}
+
+/* metamarks (manicules and paragraph breaks, mostly) */
+tei-metamark[place=right] {
   top: 1rem;
   float: right;
   width: 180px;
   margin-right: -200px;
-  font-size: .85em;
-  color: deeppink;
+  color: darkslateblue;
 }
-tei-add[place=left][type=reference]{
+tei-metamark[place=left] {
   top: 1rem;
   float: left;
   width: 180px;
   margin-left: -200px;
-  font-size: .85em;
-  color: deeppink;
-}
-
-/* metamarks (manicules, mostly) */
-tei-metamark[place=right][function=flag]{
-  top: 1rem;
-  float: right;
-  width: 180px;
-  margin-right: -200px;
-  font-size: .85em;
-  color: darkslateblue;
-}
-tei-metamark[place=left][function=flag] {
-  top: 1rem;
-  float: left;
-  width: 180px;
-  margin-left: -200px;
-  font-size: .85em;
   color: darkslateblue;
 }
 
-tei-supplied {
+tei-supplied, tei-unclear {
   font-style: italic !important;
 }
-tei-unclear {
-  font-style: italic !important;
-}
+
 tei-gap {
   font-family: monospace;
   color: #808080;
@@ -230,8 +271,8 @@ tei-teiHeader {
   margin-bottom: .5em;
   margin-left: 4.5em;
   margin-right: 4.5em;
-  text-align: justify;
-  width: 900px;
+  text-align: center;
+  width: 1000px;
   background-color: aliceblue;
 }
 tei-titleStmt {
@@ -241,7 +282,8 @@ tei-author, tei-editor, tei-sourceDesc {
   font-style: italic;
   display:inline-flex;
   width: 600px;
+  justify-content: space-evenly;
 }
-tei-sourceDesc {
+/* tei-sourceDesc {
   margin-inline: 9em;
-}
+} */
